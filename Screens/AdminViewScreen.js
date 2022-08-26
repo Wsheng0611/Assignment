@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, StyleSheet, Alert, View, TextInput} from 'react-native';
+import {Text, StyleSheet, Alert, View, TextInput, Image} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {FloatingAction} from 'react-native-floating-action';
 import Ionicons from 'react-native-vector-icons/AntDesign';
@@ -87,6 +87,20 @@ export default class ViewScreen extends Component {
     return (
       <View style={styles.container}>
         <ScrollView>
+          <View style={{
+            alignItems: 'center',
+            borderBottomWidth: 1,
+            paddingBottom: 10,
+            marginBottom:10,
+            borderColor: '#ccc',
+            }}>
+            <Image source={{uri: product ? product.image : ''}} 
+              style={{
+                width: '40%',
+                height: undefined,
+                aspectRatio: 1,
+              }}/>
+          </View>
             <Text style={styles.TextLabel}>Name:</Text>
             <TextInput
                 style={styles.TextInput}
@@ -119,7 +133,7 @@ export default class ViewScreen extends Component {
         </ScrollView>
         <FloatingAction
           actions={actions}
-          color={'#a80000'} //   floatingIcon={( //     <Image //       source={require('./images/baseline_edit_white_18dp.png')} //     /> //   )}
+          color={'#a80000'} 
           onPressItem={name => {
             switch (name) {
               case 'edit':

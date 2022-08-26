@@ -1,9 +1,9 @@
-import React from 'react';
+import React, {Component} from 'react';
 import { View, StyleSheet, SafeAreaView, Image, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default class MyAccountScreen extends React.Component {
+export default class MyAccountScreen extends Component {
 
 	constructor(props) {
 		super(props);

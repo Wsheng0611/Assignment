@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import {StyleSheet, TextInput, Text, View, ScrollView, Button} from 'react-native';
+import {StyleSheet, TextInput, Text, View, ScrollView, Button, Image} from 'react-native';
+import {Picker} from '@react-native-picker/picker';
 
 let SQLite = require('react-native-sqlite-storage');
 
@@ -9,8 +10,10 @@ export default class EditScreen extends Component<Props> {
     this.state = {
       productID: this.props.route.params.id,
       name: '',
-      email: '',
-      state: '',
+      price: 0,
+      category: '',
+      description: '',
+      image: '',
     };
     this._query = this._query.bind(this);
     this._update = this._update.bind(this);
@@ -30,15 +33,17 @@ export default class EditScreen extends Component<Props> {
     this.db.transaction(tx => {
       tx.executeSql(
         'SELECT * FROM products WHERE id = ?',
-        [this.state.productsID],
+        [this.state.productID],
         (tx, results) => {
-          if (results.rows.length) {
+          if (results.rows.length>0) {
             this.setState({
               name: results.rows.item(0).name,
               category: results.rows.item(0).category,
               price: results.rows.item(0).price,
               description: results.rows.item(0).description,
+              image: results.rows.item(0).image,
             });
+            console.log("data inserted into state");
           }
         },
       );
@@ -65,10 +70,23 @@ export default class EditScreen extends Component<Props> {
     console.log('SQL Error: ' + err);
   }
   render() {
-    let student = this.state.student;
     return (
       <View style={styles.container}>
         <ScrollView>
+        <View style={{
+            alignItems: 'center',
+            borderBottomWidth: 1,
+            paddingBottom: 10,
+            marginBottom:10,
+            borderColor: '#ccc',
+            }}>
+            <Image source={{uri: this.state.image}} 
+              style={{
+                width: '40%',
+                height: undefined,
+                aspectRatio: 1,
+              }}/>
+          </View>
             <Text style={styles.TextLabel}>Name:</Text>
             <TextInput
                 style={styles.TextInput}
@@ -88,17 +106,24 @@ export default class EditScreen extends Component<Props> {
                 orientation={'vertical'}
             />
             <Text style={styles.TextLabel}>Category:</Text>
-            <TextInput
-                style={styles.TextInput}
-                value={this.state.category}
-                onChangeText={category => {
-                    this.setState({category});
-                }}
-                orientation={'vertical'}
-            />
+            <Picker
+            style={styles.picker}
+            mode={'dialog'}                     
+            prompt={'Select Product Category'}  
+            selectedValue={this.state.category}
+            onValueChange={
+              (itemValue, itemIndex) => this.setState({category: itemValue})
+            }>
+              <Picker.Item label="Racquet" value="Racquet" />
+              <Picker.Item label="Accessories" value="Accessories" />
+              <Picker.Item label="Bag" value="Bag" />
+              <Picker.Item label="Footwear" value="Footwear" />
+              <Picker.Item label="Appareal" value="Appareal" />
+            </Picker>
             <Text style={styles.TextLabel}>Description:</Text>
             <TextInput
                 style={styles.TextInput}
+                multiline={true}
                 value={this.state.description}
                 onChangeText={description => {
                     this.setState({description});
@@ -133,8 +158,14 @@ const styles = StyleSheet.create({
     color: '#000099',
   },
 
-  pickerItemStyle: {
-    fontSize: 20,
+  picker: {
     color: '#000099',
-  },
+    margin: 10,
+    width: '50%',
+    left: 10,
+    transform: [
+      { scaleX: 1.5 }, 
+      { scaleY: 1.5 },
+   ]
+ },
 });

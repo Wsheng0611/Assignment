@@ -1,26 +1,34 @@
 import React, { Component } from "react";
+
 import {
 	StyleSheet,
 	Text,
 	TouchableOpacity,
+	SafeAreaView,
+	ImageBackground,
 	ScrollView,
+	KeyboardAvoidingView,
 	View
 } from "react-native";
 
 import { TextInput } from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default class RegisterScreen extends Component {
 	constructor(props){
 		super(props);
+
+		// ref is created and assigned to an instance property
 		this.nameRef = React.createRef();
 		this.emailRef = React.createRef();
 		this.passwordRef = React.createRef();
 		this.confirmPasswordRef = React.createRef();
 		this.mobileRef = React.createRef();
 		this.bdateRef = React.createRef();
+
         this.state = {
-			imageURI: '',
+			// input for new information
 			name: '',
 			email: '',
 			mobile: '',
@@ -28,6 +36,9 @@ export default class RegisterScreen extends Component {
 			password: '',
 			confirmPassword: '',
 			error: '',
+
+			// wrong input format
+			emptyError: false,
 			emailError: false,
 			mobileError: false,
 			passwordError: false,
@@ -37,76 +48,101 @@ export default class RegisterScreen extends Component {
 	}
 
 	showData = async() => {
-		let { name, email, mobile, password, confirmPassword, bdate, imageURI } = this.state;
 
+		let {name, email, mobile, password, confirmPassword, bdate } = this.state;
+
+		// validate input data using Regex rule
 		let emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 		let passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/;
-		let phoneRegex = /^[01]\d{9}$/;
+		let phoneRegex = /^(\+?6?01)[02-46-9][-][0-9]{7}$|^(\+?6?01)[1][-][0-9]{8}$/;
 
-		if (emailRegex.test(email)) {
-			this.setState({ mobileError: false })
-			if (phoneRegex.test(mobile)) {
-				this.setState({ mobileError: false })
+		// test empty field
+		if((name, email, mobile, password, confirmPassword, bdate) != ''){
+			this.setState({ emptyError: false })
+
+			// test email format
+			if (emailRegex.test(email)) {
+				this.setState({ emailError: false })
+
+				// test password format
 				if (passwordRegex.test(password)) {
-					this.setState({ passwordError: true })
+					this.setState({ passwordError: false })
+
+					// check password enter = confirmed password
 					if (password === confirmPassword) {
 						this.setState({ passwordError: false, confirmPasswordError: false })
-						
-						await AsyncStorage.setItem('userName', name)
-						await AsyncStorage.setItem('userEmail', email)
-						await AsyncStorage.setItem('userPassword', password)
-						await AsyncStorage.setItem('userMobile', mobile)
-						await AsyncStorage.setItem('userDOB', bdate);
-						await AsyncStorage.setItem('userImage', imageURI);
-						await AsyncStorage.setItem('isAuth', 'true')
-						
-						return this.state.navigation.replace('DrawerNavigation');
+
+						// test phone format
+						if (phoneRegex.test(mobile)) {
+							this.setState({ mobileError: false })
+
+							await AsyncStorage.setItem('userName', name)
+							await AsyncStorage.setItem('userEmail', email)
+							await AsyncStorage.setItem('userPassword', password)
+							await AsyncStorage.setItem('userMobile', mobile)
+							await AsyncStorage.setItem('userDOB', bdate);
+							
+							return alert('Register Sucessfully'), this.state.navigation.replace('LoginScreen');
+						}
+						this.setState({ mobile: '', mobileError: true })
+						return alert('Please follow mobile format in 01X-XXXXXXX');
+
 					}
+					this.setState({ password: '', confirmPassword: '', passwordError: true, confirmPasswordError: true })
+					return alert('Confirm Password Not Matching with Password');
+
 				}
 				this.setState({ password: '', confirmPassword: '', passwordError: true, confirmPasswordError: true })
-				return alert('Password Not Matching');
+				return alert('Password Not Matching Format in must be at least 8 long, one upper case, one digit and one non-alphanumeric');
+
 			}
-			this.setState({ mobile: '', mobileError: true })
-			return alert('Mobile Number Incorrect');
+			this.setState({email: '', emailError: true })
+			return alert('Please follow email format in xxx@xxx.xxx');
+
 		}
-
-		this.setState({ emailError: true })
-
-		return alert('Email Incorrect');
+		this.setState({ emptyError: true })
+		return alert('Empty Field is not allowed !!!');
 	}
 
+	// display register form
 	render() {
 		return (
-			<View style={{ flex: 1, backgroundColor: 'cyan' }} >
-				<ScrollView style={{ margin: 15, borderRadius: 30, backgroundColor: '#fff' }} showsVerticalScrollIndicator={false} >
-					<View style={{ marginTop: 20, marginLeft: 20 }} >
-						<Text style={styles.heading}>Hello!</Text>
-						<Text style={styles.heading}>SignUp To</Text>
-						<Text style={styles.heading}>Get Started</Text>
-					</View>
 
-					{/* Name */}
-					<View style={styles.details}>
+			<SafeAreaView style = {{ flex: 1}}> 
+				<KeyboardAvoidingView style = {{ flex: 1 }}>
+					<ImageBackground 
+						style = {{ flex: 1 }}
+						opacity = {0.5}
+						source = {{ uri:'https://raw.githubusercontent.com/AboutReact/sampleresource/master/crystal_background.jpg' }}
+					>
+
+					<ScrollView contentContainerStyle = { styles.scrollviewStyles } showsVerticalScrollIndicator={false} >
+
+						<View style = { styles.headingStyles }>
+							<Text style = { styles.title } >Registration Form</Text>
+						</View>
+
+						{/* TextInput mode --> flat and outlined ## in this case we use flat only */}
+
+						{/* Name */}
 						<TextInput
-							mode="outlined"
+							mode="flat"
 							label="Name"
-							placeholder="Name" 
+							placeholder="Username" 
 							returnKeyType="next"
 							blurOnSubmit={false}
 							ref={this.nameRef}
 							value={this.state.name}
 							onChangeText={ (name) => this.setState({ name })}
-							onSubmitEditing={() => this.emailRef.current.focus()}
+							onSubmitEditing={() => this.nameRef.current.focus()}
 							style={styles.inputStyles}
 						/>
-					</View>
-					
-					{/* Email Address */}
-					<View style={styles.details}>
+						
+						{/* Email Address */}
 						<TextInput
-							mode="outlined"
+							mode="flat"
 							label="Email Address"
-							placeholder="Email Address"
+							placeholder="email@example.com"
 							returnKeyType="next"
 							blurOnSubmit={false}
 							error={this.state.emailError}
@@ -116,32 +152,28 @@ export default class RegisterScreen extends Component {
 							onSubmitEditing={() => this.passwordRef.current.focus()}
 							style={styles.inputStyles}
 						/>
-					</View>
-
-					{/* Password */}
-					<View style={styles.details}>
+					
+						{/* Password */}
 						<TextInput
-							mode="outlined"
+							mode="flat"
 							label="Password"
-							placeholder="Password"
+							placeholder="at least one(1-9), one (A-Z), one (symbol) and >= 8 long"
 							returnKeyType="next"
 							blurOnSubmit={false}
 							error={this.state.passwordError}
 							ref={this.passwordRef}
 							value={this.state.password}
 							secureTextEntry={true}
-							onChangeText={ (password) => this.setState({ password })} 
+							onChangeText={(password) => this.setState({ password })} 
 							onSubmitEditing={() => this.confirmPasswordRef.current.focus()}
 							style={styles.inputStyles}
 						/>
-					</View>
-
-					{/* Confirm Password */}
-					<View style={styles.details}>
+						
+						{/* Confirm Password */}
 						<TextInput
-							mode="outlined"
+							mode="flat"
 							label="Confirm Password"
-							placeholder="Confirm Password"
+							placeholder="Re-enter Password"
 							returnKeyType="next"
 							blurOnSubmit={false}
 							error={this.state.confirmPasswordError}
@@ -152,15 +184,13 @@ export default class RegisterScreen extends Component {
 							onSubmitEditing={() => this.mobileRef.current.focus()}
 							style={styles.inputStyles}
 						/>
-					</View>
-					
-					{/* Mobile */}
-					<View style={styles.details}>
+						
+						{/* Mobile */}
 						<TextInput
-							mode="outlined"
+							mode="flat"
 							label="Phone Number"
 							returnKeyType="next"
-							placeholder="Phone Number" 
+							placeholder="01X-XXXXXXX" 
 							keyboardType="phone-pad"
 							blurOnSubmit={false}
 							maxLength={11}
@@ -171,12 +201,10 @@ export default class RegisterScreen extends Component {
 							onSubmitEditing={() => this.bdateRef.current.focus()}
 							style={styles.inputStyles}
 						/>
-					</View>
-				
-					{/* Date of Birth */}
-					<View style={styles.details}>
+					
+						{/* Date of Birth */}
 						<TextInput
-							mode="outlined"
+							mode="flat"
 							label="Date of Birth"
 							placeholder="DD-MM-YYYY"
 							keyboardType="numeric"
@@ -193,45 +221,83 @@ export default class RegisterScreen extends Component {
 							style={styles.inputStyles}
 							maxLength={10}
 						/>
-					</View>
 
-					<View style={{ marginHorizontal: 30, marginTop: 20 }} >
-						<TouchableOpacity  onPress={() => this.showData()} style={{ paddingVertical: 15, backgroundColor: '#000', paddingHorizontal: 20, borderRadius: 20 }} >
-							<Text style={{ textAlign: 'center', color: '#fff' }} >
+						{/* Submit Button */}
+						<TouchableOpacity
+							activeOpacity={0.8}
+							style={styles.submitbuttonStyle}
+							onPress={() => this.showData()}>
+							<Text style={{ fontSize: 20, fontWeight: 'bold' }}>
 								Submit
 							</Text>
 						</TouchableOpacity>
-					</View>
-			
-				</ScrollView>
-			</View>
+
+					{/* Back to Login Part */}
+					<Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 15, color: 'black' }} >
+						Already have Account?  
+						<Text onPress = 
+							{() => {
+								this.state.navigation.navigate('LoginScreen');
+							}}
+							style={{color: '#00F', textDecorationLine: 'underline'}}>
+
+							<Text> Sign in</Text>
+						</Text> 
+					</Text>
+					</ScrollView>
+
+					</ImageBackground>
+				</KeyboardAvoidingView>
+			</SafeAreaView>
 		);
 	}
 }
 
 const styles = StyleSheet.create({
-	heading: {
-		fontSize: 30,
+
+	scrollviewStyles: {
+		flexGrow:1,
+		justifyContent:'center' 		
+	},
+
+	headingStyles: {
+		alignItems: 'center',
+		marginVertical: 12,
+	},
+
+	title: {
+		fontSize: 35,
 		fontWeight: 'bold',
-		color: '#1B0F30',
-		marginLeft: 20
+		fontFamily: 'sans-serif-medium',
+		color: '#191970',
 	},
-	imageStruct: { 
-		justifyContent: 'center', 
-		alignItems: 'center', 
-		marginVertical: 20 
-	},
-	userImage: { 
-		height: 100, 
-		width: 100, 
-		backgroundColor: '#0bc4d9', 
-		borderRadius: 20,
-		marginBottom: 5 
-	},
-	details: {
-		padding: 10, 
-	},
+
 	inputStyles: {
-		height: 40
+		overflow: 'hidden',
+		borderColor: "#233067 ",
+		borderTopLeftRadius: 20,
+		borderTopRightRadius: 20,
+		borderBottomLeftRadius: 20,
+		borderBottomRightRadius: 20,
+		marginHorizontal: 10,	
+		marginVertical: 7,
+		width: '95%',
+		backgroundColor: '#EFF4F9',
+		marginLeft: 'auto',
+		marginRight: 'auto'
+	},
+
+	submitbuttonStyle: {
+		borderRadius: 10,
+		borderColor: "#FBB741",
+		borderWidth: 1,
+		height: 50,
+		width: 250,
+		marginVertical: 10,
+		alignItems:"center",
+		justifyContent:"center",
+		marginLeft: 'auto',
+		marginRight: 'auto',
+		backgroundColor: 'yellow'
 	},
 });

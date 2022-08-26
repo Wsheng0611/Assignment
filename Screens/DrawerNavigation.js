@@ -24,9 +24,22 @@ export default class App extends Component {
             drawerActiveBackgroundColor: 'skyblue',
           }}
         >
-          <Drawer.Screen name="Home" component={BottomTabNavigation} />
-          <Drawer.Screen name="My Account" component={MyAccountScreen} />
-          <Drawer.Screen name="About Us" component={AboutUs} />
+          <Drawer.Screen name="Home" component={BottomTabNavigation} options={{groupName: 'Section 1',headerShown: false}}/>
+          
+          <Drawer.Screen name="My Account" component={MyAccountScreen} options={{
+        groupName: 'Section 2',
+				headerStyle: { backgroundColor: '#000' },
+				headerTintColor: '#fff',
+				headerTitleStyle: { fontWeight: 'bold' },
+        headerTitleAlign: 'center',
+			}}/>
+          <Drawer.Screen name="About Us" component={AboutUs} options={{
+        groupName: 'Section 2',
+				headerStyle: { backgroundColor: '#000' },
+				headerTintColor: '#fff',
+				headerTitleStyle: { fontWeight: 'bold' },
+        headerTitleAlign: 'center',
+			}}/>
 
         </Drawer.Navigator>
 
