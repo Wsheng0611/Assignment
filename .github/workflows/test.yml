@@ -32,6 +32,5 @@ jobs:
         file: ./**/target/site/jacoco/jacoco.xml
         name: codecov
         cache: 'npm'
-    - run: npm install
     - run: npm ci
     - run: npm run build --if-present
