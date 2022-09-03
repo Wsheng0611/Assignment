@@ -33,5 +33,6 @@ jobs:
         name: codecov
         cache: 'npm'
     - run: |
+        yarn install
         npm ci
         npm run build --if-present
