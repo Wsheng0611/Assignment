@@ -29,6 +29,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         github-token: ${{ secrets.github_token }}
+        file: ./**/target/site/jacoco/jacoco.xml
+        name: codecov
         cache: 'npm'
     - run: npm install
     - run: npm ci
