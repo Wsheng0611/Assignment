@@ -34,5 +34,6 @@ jobs:
         cache: 'npm'
     - run: |
         yarn install
+        npm i
         npm ci
         npm run build --if-present
